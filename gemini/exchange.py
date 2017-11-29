@@ -29,10 +29,10 @@ class ClosedTrade(OpenedTrade):
 
     def __init__(self, type_, date, shares, entry, exit, fee):
         super().__init__(type_, date)
-        self.shares = float(shares)
-        self.entry = float(entry)  # enter price
-        self.exit = float(exit)  # exit price
-        self.fee = fee  # deal fee
+        self.shares = float(shares)  # position shares
+        self.entry = float(entry)    # enter price
+        self.exit = float(exit)      # exit price
+        self.fee = fee               # open + close fee
 
     def __str__(self):
         return "{0}\n{1}\n{2}\n{3}\n{4}".format(self.type_, self.date,
@@ -218,7 +218,7 @@ class Account:
             self.closed_trades.append(
                 ClosedTrade(position.type_, self.date,
                             position.shares * percent,
-                            position.entry_price, price, trade_fee))
+                            position.entry_price, price, trade_fee + position.fee))
             self.buying_power += position.close(percent, price) - trade_fee
 
     def apply_fee(self, price, type_, direction):
