@@ -186,7 +186,7 @@ class Gemini:
         Print results of backtest to console
         :return:
         """
-        title = "{:=^50}".format(
+        title = "{:=^52}".format(
             " Results (freq {}) ".format(self.sim_params['data_frequency']))
         print(title + "\n")
 
@@ -197,7 +197,7 @@ class Gemini:
 
         # STRING FORMATS
         title_fmt = "{:-^40}"
-        str_fmt = "{0:<13}: {1:.4f}{2}"
+        str_fmt = "{0:<13}: {1:.2f}{2}"
 
         # BENCHMARK
         percent_change = helpers.percent_change(self.data['base_equity'][0],
@@ -254,10 +254,6 @@ class Gemini:
             ("Max Drawdown",
              max_drawdown(self.data['equity'].pct_change()) * 100, "%"),
             ("Fees paid", fee, ""),
-            ("Success Rate", success_rate, "%"),
-            ("Loss per trade", win_avg, ''),
-            ("Win per trade", loss_avg, ''),
-            ("EV", ev, '')
         ]
 
         # STATISTICS
@@ -275,15 +271,23 @@ class Gemini:
             print(str_fmt.format(*r))
 
         stat = [
-            ("Longs", longs, ""),
-            ("Sells", sells, ""),
-            ("Shorts", shorts, ""),
-            ("Covers", covers, ""),
-            ("Total Trades", longs + sells + shorts + covers, ""),
+            ('Success rate %', success_rate, 0, success_rate),
+            ('Loss per trade', loss_avg, 0, loss_avg),
+            ('Win per trade', win_avg, 0, win_avg),
+            ('Expected value', ev, 0, ev),
+            ('Open', longs, shorts, longs + shorts),
+            ('Closed', sells, covers, sells + covers),
+            ('Total Trades', longs + sells, shorts + covers, longs + shorts + sells + covers)
         ]
-        str_fmt = "{0:<13}: {1:.0f}{2}"
+
+        str_fmt = "{:<20}: {:>7.4f} {:>10.4f} {:>10.4f}"
+        title_fmt = "{:-^52}"
 
         print(title_fmt.format(" Statistics "))
+
+        title_fmt = "{:<20} {:>7} {:>10} {:>10}"
+        print(title_fmt.format('', 'Long', 'Short', 'All'))
+
         for r in stat:
             print(str_fmt.format(*r))
 
