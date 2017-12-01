@@ -1,6 +1,7 @@
 import logging
 import time
 import types
+import numpy as np
 
 from empyrical import max_drawdown
 
@@ -185,11 +186,9 @@ class Gemini:
         Print results of backtest to console
         :return:
         """
-        title = "{:=^50}".format(
+        title = "{:=^52}".format(
             " Results (freq {}) ".format(self.sim_params['data_frequency']))
         print(title + "\n")
-        begin_price = self.data.iloc[0]['open']
-        final_price = self.data.iloc[-1]['close']
 
         shares = self.account.initial_capital / self.data.iloc[0]['close']
         self.data['base_equity'] = [price * shares for price in
@@ -221,11 +220,30 @@ class Gemini:
         # STRATEGY
         percent_change = helpers.percent_change(self.data['equity'][0],
                                                 self.data['equity'][-1])
-        open_fee = sum([t.fee for t in self.account.opened_trades])
-        close_fee = sum([t.fee for t in self.account.closed_trades])
+        fee = sum([t.fee for t in self.account.closed_trades])
 
-        # print trades
-        # for t in self.account.opened_trades: print(t)
+        lst = [t.exit * t.shares - t.fee - t.entry * t.shares for t in self.account.closed_trades]
+        array = np.array(lst)
+        pnl_win = np.sum(array[array > 0])
+        pnl_loss = np.sum(array[array < 0])
+        trades_win = len(array[array > 0])
+        trades_loss = len(array[array < 0])
+        trades = len(array)
+
+        # PnL % calculation
+        win_avg = pnl_win / trades_win
+        loss_avg = pnl_loss / trades_loss
+
+        # Expected value
+        """
+        W% = trades_win / trades = win_avg
+        L% = trades_loss / trades = loss_avg
+        Ave W = pnl_win / trades_win
+        Ave L = pnl_loss / trades_loss
+        Expected value = (W% * Ave W) – (L% * Ave L)
+        """
+        ev = (trades_win / trades) * win_avg - (trades_loss / trades) * loss_avg
+        success_rate = trades_win / trades * 100
 
         strategy = [
             ("Capital", self.account.initial_capital, ""),
@@ -235,12 +253,8 @@ class Gemini:
              " ({:+.2f}%)".format(percent_change * 100)),
             ("Max Drawdown",
              max_drawdown(self.data['equity'].pct_change()) * 100, "%"),
-            ("Fees paid", open_fee + close_fee, ""),
+            ("Fees paid", fee, ""),
         ]
-
-        print(title_fmt.format(" Strategy "))
-        for r in strategy:
-            print(str_fmt.format(*r))
 
         # STATISTICS
         longs = len(
@@ -252,16 +266,28 @@ class Gemini:
         covers = len(
             [t for t in self.account.closed_trades if t.type_ == 'Short'])
 
+        print(title_fmt.format(" Strategy "))
+        for r in strategy:
+            print(str_fmt.format(*r))
+
         stat = [
-            ("Longs", longs, ""),
-            ("Sells", sells, ""),
-            ("Shorts", shorts, ""),
-            ("Covers", covers, ""),
-            ("Total Trades", longs + sells + shorts + covers, ""),
+            ('Success rate %', success_rate, 0, success_rate),
+            ('Loss per trade', loss_avg, 0, loss_avg),
+            ('Win per trade', win_avg, 0, win_avg),
+            ('Expected value', ev, 0, ev),
+            ('Open', longs, shorts, longs + shorts),
+            ('Closed', sells, covers, sells + covers),
+            ('Total Trades', longs + sells, shorts + covers, longs + shorts + sells + covers)
         ]
-        str_fmt = "{0:<13}: {1:.0f}{2}"
+
+        str_fmt = "{:<20}: {:>7.4f} {:>10.4f} {:>10.4f}"
+        title_fmt = "{:-^52}"
 
         print(title_fmt.format(" Statistics "))
+
+        title_fmt = "{:<20} {:>7} {:>10} {:>10}"
+        print(title_fmt.format('', 'Long', 'Short', 'All'))
+
         for r in stat:
             print(str_fmt.format(*r))
 

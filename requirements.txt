@@ -5,3 +5,4 @@ TA-Lib
 pytest
 matplotlib
 empyrical
+numpy
