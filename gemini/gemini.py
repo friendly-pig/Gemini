@@ -122,6 +122,7 @@ class Gemini:
                 self.logic(lookback_data)
             except Exception as ex:
                 logger.exception(ex)
+                raise ex
 
             # Cleanup empty positions
             self.account.purge_positions()
@@ -242,7 +243,8 @@ class Gemini:
         Ave L = pnl_loss / trades_loss
         Expected value = (W% * Ave W) – (L% * Ave L)
         """
-        ev = (trades_win / trades) * win_avg - (trades_loss / trades) * loss_avg
+        # FIXME Error without trades
+        ev = (trades_win / trades) * win_avg + (trades_loss / trades) * loss_avg
         success_rate = trades_win / trades * 100
 
         strategy = [
@@ -277,10 +279,11 @@ class Gemini:
             ('Expected value', ev, 0, ev),
             ('Open', longs, shorts, longs + shorts),
             ('Closed', sells, covers, sells + covers),
-            ('Total Trades', longs + sells, shorts + covers, longs + shorts + sells + covers)
+            ('Total Trades', longs + sells, shorts + covers,
+             longs + shorts + sells + covers)
         ]
 
-        str_fmt = "{:<20}: {:>7.4f} {:>10.4f} {:>10.4f}"
+        str_fmt = "{:<20}: {:>10.4f} {:>10.4f} {:>10.4f}"
         title_fmt = "{:-^52}"
 
         print(title_fmt.format(" Statistics "))

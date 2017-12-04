@@ -96,10 +96,10 @@ def analyze_mpl(algo, title=None, show_trades=False):
     fig = plt.figure(figsize=(15, 10), facecolor='white')
 
     ax1 = fig.add_subplot(211)
-    ax1.plot_date(algo.data.index, algo.data['base_equity'], '-')
+    algo.data['base_equity'].plot(ax=ax1, label='Base Equity')
     ax1.set_ylabel('Equity')
 
-    ax1.plot_date(algo.data.index, algo.data['equity'], '-')
+    algo.data['equity'].plot(ax=ax1, label='Equity')
 
     ax2 = fig.add_subplot(212)
     ax2.set_ylabel('Records')
@@ -109,7 +109,8 @@ def analyze_mpl(algo, title=None, show_trades=False):
         records = records.set_index('date')
         records.plot(ax=ax2)
 
-    if show_trades:
+    if show_trades and False:
+        # FIXME Fix x axis
         buys = dict()
         sells = dict()
         for trade in algo.account.opened_trades:
