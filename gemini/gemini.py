@@ -223,30 +223,6 @@ class Gemini:
                                                 self.data['equity'][-1])
         fee = sum([t.fee for t in self.account.closed_trades])
 
-        lst = [t.exit * t.shares - t.fee - t.entry * t.shares for t in self.account.closed_trades]
-        array = np.array(lst)
-        pnl_win = np.sum(array[array > 0])
-        pnl_loss = np.sum(array[array < 0])
-        trades_win = len(array[array > 0])
-        trades_loss = len(array[array < 0])
-        trades = len(array)
-
-        # PnL % calculation
-        win_avg = pnl_win / trades_win
-        loss_avg = pnl_loss / trades_loss
-
-        # Expected value
-        """
-        W% = trades_win / trades = win_avg
-        L% = trades_loss / trades = loss_avg
-        Ave W = pnl_win / trades_win
-        Ave L = pnl_loss / trades_loss
-        Expected value = (W% * Ave W) – (L% * Ave L)
-        """
-        # FIXME Error without trades
-        ev = (trades_win / trades) * win_avg + (trades_loss / trades) * loss_avg
-        success_rate = trades_win / trades * 100
-
         strategy = [
             ("Capital", self.account.initial_capital, ""),
             ("Final Equity", self.data['equity'][-1], ""),
@@ -272,11 +248,16 @@ class Gemini:
         for r in strategy:
             print(str_fmt.format(*r))
 
+        # get trades' statistics
+        l_sr, l_loss, l_win, l_ev = self._trades_analyze(type_=['Long'])
+        s_sr, s_loss, s_win, s_ev = self._trades_analyze(type_=['Short'])
+        all_sr, all_loss, all_win, all_ev = self._trades_analyze()
+
         stat = [
-            ('Success rate %', success_rate, 0, success_rate),
-            ('Loss per trade', loss_avg, 0, loss_avg),
-            ('Win per trade', win_avg, 0, win_avg),
-            ('Expected value', ev, 0, ev),
+            ('Success rate %', l_sr, s_sr, all_sr),
+            ('Avg Win / trade', l_win, s_win, all_win),
+            ('Avg Loss / trade', l_loss, s_loss, all_loss),
+            ('Expected value', l_ev, s_ev, all_ev),
             ('Open', longs, shorts, longs + shorts),
             ('Closed', sells, covers, sells + covers),
             ('Total Trades', longs + sells, shorts + covers,
@@ -295,6 +276,42 @@ class Gemini:
             print(str_fmt.format(*r))
 
         print("-" * len(title))
+
+    def _trades_analyze(self, type_=['Long', 'Short']):
+        """
+        Analyze trades and return statistics
+
+        :param types:
+        :return:
+        """
+        lst = [t.exit * t.shares - t.fee - t.entry * t.shares
+               for t in self.account.closed_trades if t.type_ in type_]
+        array = np.array(lst)
+        pnl_win = np.sum(array[array > 0])
+        pnl_loss = np.sum(array[array < 0])
+        trades_win = len(array[array > 0])
+        trades_loss = len(array[array < 0])
+        trades = len(array)
+
+        if not trades:
+            return 0, 0, 0, 0
+
+        # PnL % calculation
+        win_avg = pnl_win / trades_win if trades_win else 0
+        loss_avg = pnl_loss / trades_loss if trades_loss else 0
+
+        # Expected value
+        """
+        W% = trades_win / trades = win_avg
+        L% = trades_loss / trades = loss_avg
+        Ave W = pnl_win / trades_win
+        Ave L = pnl_loss / trades_loss
+        Expected value = (W% * Ave W) – (L% * Ave L)
+        """
+        ev = (trades_win / trades) * win_avg + (trades_loss / trades) * loss_avg
+        success_rate = trades_win / trades * 100
+
+        return success_rate, loss_avg, win_avg, ev
 
     def analyze(self):
         pass

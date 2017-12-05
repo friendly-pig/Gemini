@@ -54,7 +54,11 @@ def load_dataframe(pair, period, days_history=30):
     :param timeframe: H - hour, D - day, W - week, M - month
     :return:
     """
-    data = get_past(convert_pair_poloniex(pair), period, days_history)
+    try:
+        data = get_past(convert_pair_poloniex(pair), period, days_history)
+    except Exception as ex:
+        raise ex
+
     if 'error' in data:
         raise Exception("Bad response: {}".format(data['error']))
 
