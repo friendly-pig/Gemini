@@ -5,6 +5,22 @@ PRECISION = getattr(settings, "PRECISION", 8)
 FEES = getattr(settings, "FEES", dict())
 
 
+class Order:
+    """
+    Main order class.
+    Store details for market and limit orders
+    """
+
+    def __init__(self, pair, shares, price, type_):
+        self.pair = pair
+        self.shares = shares
+        self.price = price
+        self.type_ = type_
+
+    def __str__(self):
+        return f'Order: {self.pair}, {self.shares}, {self.price}, {self.type_}'
+
+
 class OpenedTrade:
     """
     Open trades main class
@@ -30,9 +46,9 @@ class ClosedTrade(OpenedTrade):
     def __init__(self, type_, date, shares, entry, exit, fee):
         super().__init__(type_, date)
         self.shares = float(shares)  # position shares
-        self.entry = float(entry)    # enter price
-        self.exit = float(exit)      # exit price
-        self.fee = fee               # open + close fee
+        self.entry = float(entry)  # enter price
+        self.exit = float(exit)  # exit price
+        self.fee = fee  # open + close fee
 
     def __str__(self):
         return "{0}\n{1}\n{2}\n{3}\n{4}".format(self.type_, self.date,
