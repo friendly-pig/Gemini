@@ -154,6 +154,7 @@ class Account:
         self.positions = []
         self.opened_trades = []
         self.closed_trades = []
+        self.opened_orders = []
         if isinstance(fee, dict):
             self.fee = fee
 
@@ -236,6 +237,17 @@ class Account:
                             position.shares * percent,
                             position.entry_price, price, trade_fee + position.fee))
             self.buying_power += position.close(percent, price) - trade_fee
+
+    def new_order(self, pair, shares, price, type_):
+        """
+        Create new order & add it to self.opened_orders
+        :param pair:
+        :param shares:
+        :param price:
+        :param type_:
+        :return:
+        """
+        self.opened_orders.append(Order(pair, shares, price, type_))
 
     def apply_fee(self, price, type_, direction):
         """
