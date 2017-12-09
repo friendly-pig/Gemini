@@ -120,6 +120,8 @@ class Gemini:
             lookback_data = self.data.loc[:index]
             try:
                 self.logic(lookback_data)
+                # TODO: обработка ордеров
+                #self.account.check_orders(tick) - exchange
             except Exception as ex:
                 logger.exception(ex)
                 raise ex
@@ -139,8 +141,8 @@ class Gemini:
 
         perf['price'] = perf['close']
 
-        shares = self.account.initial_capital / perf.iloc[0]['close']
-        perf['base_equity'] = [price * shares for price in perf['close']]
+        size = self.account.initial_capital / perf.iloc[0]['close']
+        perf['base_equity'] = [price * size for price in perf['close']]
         perf['equity'] = [e for _, e in self.account.equity]
 
         # BENCHMARK
@@ -191,8 +193,8 @@ class Gemini:
             " Results (freq {}) ".format(self.sim_params['data_frequency']))
         print(title + "\n")
 
-        shares = self.account.initial_capital / self.data.iloc[0]['close']
-        self.data['base_equity'] = [price * shares for price in
+        size = self.account.initial_capital / self.data.iloc[0]['close']
+        self.data['base_equity'] = [price * size for price in
                                     self.data['close']]
         self.data['equity'] = [e for _, e in self.account.equity]
 
@@ -284,7 +286,7 @@ class Gemini:
         :param types:
         :return:
         """
-        lst = [t.exit * t.shares - t.fee - t.entry * t.shares
+        lst = [t.exit * t.size - t.fee - t.entry * t.size
                for t in self.account.closed_trades if t.type_ in type_]
         array = np.array(lst)
         pnl_win = np.sum(array[array > 0])

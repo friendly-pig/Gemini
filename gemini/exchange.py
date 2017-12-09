@@ -11,14 +11,23 @@ class Order:
     Store details for market and limit orders
     """
 
-    def __init__(self, pair, shares, price, type_):
+    # TODO: refactor shares > size
+
+    def __init__(self, pair, size, price, type_):
         self.pair = pair
-        self.shares = shares
+        self.size = size
         self.price = price
         self.type_ = type_
 
     def __str__(self):
-        return f'Order: {self.pair}, {self.shares}, {self.price}, {self.type_}'
+        return f'Order: {self.pair}, {self.size}, {self.price}, {self.type_}'
+
+    def fill(self):
+        """
+        Mark when order filled
+        :return:
+        """
+        pass
 
 
 class OpenedTrade:
@@ -43,16 +52,16 @@ class ClosedTrade(OpenedTrade):
     Closed trade class
     """
 
-    def __init__(self, type_, date, shares, entry, exit, fee):
+    def __init__(self, type_, date, size, entry, exit, fee):
         super().__init__(type_, date)
-        self.shares = float(shares)  # position shares
+        self.size = float(size)  # position size
         self.entry = float(entry)  # enter price
         self.exit = float(exit)  # exit price
         self.fee = fee  # open + close fee
 
     def __str__(self):
         return "{0}\n{1}\n{2}\n{3}\n{4}".format(self.type_, self.date,
-                                                self.shares, self.entry,
+                                                self.size, self.entry,
                                                 self.exit)
 
 
@@ -61,11 +70,11 @@ class Position:
     Position main class
     """
 
-    def __init__(self, number, entry_price, shares, exit_price=0, stop_loss=0):
+    def __init__(self, number, entry_price, size, exit_price=0, stop_loss=0):
         self.number = number
         self.type_ = "None"
         self.entry_price = float(entry_price)
-        self.shares = float(shares)
+        self.size = float(size)
         self.exit_price = float(exit_price)
         self.stop_loss = float(stop_loss)
 
@@ -77,12 +86,12 @@ class Position:
         print("No. {0}".format(self.number))
         print("Type:   {0}".format(self.type_))
         print("Entry:  {0}".format(self.entry_price))
-        print("Shares: {0}".format(self.shares))
+        print("Size: {0}".format(self.size))
         print("Exit:   {0}".format(self.exit_price))
         print("Stop:   {0}\n".format(self.stop_loss))
 
     def __str__(self):
-        return "{} {}x{}".format(self.type_, self.shares, self.entry_price)
+        return "{} {}x{}".format(self.type_, self.size, self.entry_price)
 
 
 class LongPosition(Position):
@@ -90,23 +99,23 @@ class LongPosition(Position):
     Long position class
     """
 
-    def __init__(self, number, entry_price, shares, fee, exit_price=0,
+    def __init__(self, number, entry_price, size, fee, exit_price=0,
                  stop_loss=0):
-        super().__init__(number, entry_price, shares, exit_price, stop_loss)
+        super().__init__(number, entry_price, size, exit_price, stop_loss)
         self.type_ = 'Long'
         self.fee = fee
 
     def close(self, percent, current_price):
         """
-        Decrease shares count by percent and return value of closed shares.
+        Decrease size count by percent and return value of closed size.
 
         :param percent:
         :param current_price:
         :return:
         """
-        shares = self.shares
-        self.shares *= 1.0 - percent
-        return shares * percent * current_price
+        size = self.size
+        self.size *= 1.0 - percent
+        return size * percent * current_price
 
 
 class ShortPosition(Position):
@@ -114,24 +123,24 @@ class ShortPosition(Position):
     Short position class
     """
 
-    def __init__(self, number, entry_price, shares, fee, exit_price=0,
+    def __init__(self, number, entry_price, size, fee, exit_price=0,
                  stop_loss=0):
-        super().__init__(number, entry_price, shares, exit_price, stop_loss)
+        super().__init__(number, entry_price, size, exit_price, stop_loss)
         self.type_ = 'Short'
         self.fee = fee
 
     def close(self, percent, current_price):
         """
-        Decrease shares count by percent and return value of closed shares.
+        Decrease size count by percent and return value of closed size.
 
         :param percent:
         :param current_price:
         :return:
         """
 
-        entry = self.shares * percent * self.entry_price
-        exit_ = self.shares * percent * current_price
-        self.shares *= 1.0 - percent
+        entry = self.size * percent * self.entry_price
+        exit_ = self.size * percent * current_price
+        self.size *= 1.0 - percent
         if entry - exit_ + entry <= 0:
             return 0
         else:
@@ -180,7 +189,7 @@ class Account:
             # apply fee to price
             price_with_fee = self.apply_fee(entry_price, type_, 'Open')
 
-            # round shares and calculate position capital
+            # round size and calculate position capital
             size = rnd(entry_capital / price_with_fee)
             pos_amount = rnd(entry_price * size)
 
@@ -230,24 +239,24 @@ class Account:
             # get trade fee
             # FIXME Use type by direction: buy-Long, sell-Short
             trade_fee = rnd(
-                price * position.shares * self.fee.get(position.type_, 0))
+                price * position.size * self.fee.get(position.type_, 0))
 
             self.closed_trades.append(
                 ClosedTrade(position.type_, self.date,
-                            position.shares * percent,
+                            position.size * percent,
                             position.entry_price, price, trade_fee + position.fee))
             self.buying_power += position.close(percent, price) - trade_fee
 
-    def new_order(self, pair, shares, price, type_):
+    def new_order(self, pair, size, price, type_):
         """
         Create new order & add it to self.opened_orders
         :param pair:
-        :param shares:
+        :param size:
         :param price:
         :param type_:
         :return:
         """
-        self.opened_orders.append(Order(pair, shares, price, type_))
+        self.opened_orders.append(Order(pair, size, price, type_))
 
     def apply_fee(self, price, type_, direction):
         """
@@ -280,13 +289,13 @@ class Account:
 
     def purge_positions(self):
         """
-        Delete positions without shares?
+        Delete positions without size
         :return:
         """
 
         # FIXME Fix to remove positions on close
 
-        self.positions = [p for p in self.positions if p.shares > 0]
+        self.positions = [p for p in self.positions if p.size > 0]
 
     def show_positions(self):
         """
@@ -307,9 +316,9 @@ class Account:
         # for p in self.positions: print(p)  # positions
         # for ot in self.opened_trades: print(ot)  # open trades
         in_pos = sum(
-            [p.shares * current_price for p in self.positions
+            [p.size * current_price for p in self.positions
              if p.type_ == 'Long']) + sum(
-            [p.shares * (p.entry_price - current_price + p.entry_price)
+            [p.size * (p.entry_price - current_price + p.entry_price)
              for p in self.positions
              if p.type_ == 'Short'])
         return self.buying_power + in_pos
