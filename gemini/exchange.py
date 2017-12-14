@@ -11,8 +11,6 @@ class Order:
     Store details for market and limit orders
     """
 
-    # TODO: refactor shares > size
-
     def __init__(self, pair, size, price, type_):
         self.pair = pair
         self.size = size
@@ -257,6 +255,48 @@ class Account:
         :return:
         """
         self.opened_orders.append(Order(pair, size, price, type_))
+
+    def check_orders(self, tick):
+        """
+        Check open and fill orders
+        :param tick:
+        :return:
+        """
+
+        def fill_order():
+            """
+            Fill order
+            :return:
+            """
+            self.enter_position(type_, order.size * order.price, tick.close)
+            filled_orders.append(counter)
+
+        filled_orders = []
+        counter = -1  # count object number
+
+        # check and fill orders
+        for order in self.opened_orders:
+            counter += 1
+            if order.size > 0:
+                type_ = 'Long'
+            else:
+                type_ = 'Short'
+
+            if order.type_ == "Market":
+                fill_order()
+            if order.type_ == "Limit":
+                if type_ == 'Long':
+                    if tick.close <= order.price:
+                        fill_order()
+                else:
+                    if tick.close >= order.price:
+                        fill_order()
+
+        # delete filled orders from self.opened_orders
+        if len(filled_orders) > 0:
+            filled_orders.sort(reverse=True)
+            for i in filled_orders:
+                del self.opened_orders[i]
 
     def apply_fee(self, price, type_, direction):
         """

@@ -61,7 +61,7 @@ sim_params = {
         'Short': 0.0025,
     }
 }
-print(logic, type(logic))
+
 gemini = Gemini(logic=logic, sim_params=sim_params, analyze=None)
 
 

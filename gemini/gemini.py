@@ -120,8 +120,7 @@ class Gemini:
             lookback_data = self.data.loc[:index]
             try:
                 self.logic(lookback_data)
-                # TODO: обработка ордеров
-                #self.account.check_orders(tick) - exchange
+                self.account.check_orders(tick)
             except Exception as ex:
                 logger.exception(ex)
                 raise ex
