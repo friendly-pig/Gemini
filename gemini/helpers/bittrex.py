@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 def get_now(pair):
     """
     Return last info for crypto currency pair
-    :param pair:
+    :param pair: ex: btc-ltc
     :return:
     """
 
@@ -19,7 +19,6 @@ def get_now(pair):
 
 
 def get_past(pair, period):
-
     """
     Return historical charts data from poloniex.com
     :param pair:
@@ -55,7 +54,7 @@ def load_dataframe(pair, period, days_history=30):
     :return:
     """
     try:
-        #data = get_past(convert_pair_bittrex(pair), period)
+
         data = get_past(pair, period)
     except Exception as ex:
         raise ex
@@ -66,6 +65,4 @@ def load_dataframe(pair, period, days_history=30):
     df = pd.DataFrame((data)['result'])
     df = df.set_index(['T'])
 
-
     return df
-
