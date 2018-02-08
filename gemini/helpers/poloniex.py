@@ -67,3 +67,5 @@ def load_dataframe(pair, period, days_history=30):
     df = df.set_index(['date'])
 
     return df
+print(get_now("BTC_LTC"))
+print(load_dataframe("LTC_BTC", 900))
