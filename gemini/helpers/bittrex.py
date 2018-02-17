@@ -1,6 +1,4 @@
 import logging
-import time
-
 import pandas as pd
 import requests
 
@@ -13,7 +11,6 @@ def get_now(pair):
     :param pair: ex: btc-ltc
     :return:
     """
-
     info = {'marketName': pair, 'tickInterval': 'oneMin'}
     return requests.get('https://bittrex.com/Api/v2.0/pub/market/GetLatestTick', params=info).json()
 
@@ -26,13 +23,7 @@ def get_past(pair, period):
     :param days_history:
     :return:
     """
-
-    params = {
-
-        'marketName': pair,
-        'tickInterval': period
-    }
-
+    params = {'marketName': pair, 'tickInterval': period}
     response = requests.get('https://bittrex.com/Api/v2.0/pub/market/GetTicks', params=params)
 
     return response.json()

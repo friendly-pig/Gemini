@@ -1,6 +1,5 @@
 import logging
 import time
-
 import pandas as pd
 import requests
 
@@ -13,7 +12,6 @@ def get_now(pair):
     :param pair:
     :return:
     """
-
     url_key = "t" + pair
     return requests.get(('https://api.bitfinex.com/v2/ticker/' + url_key)).json()
 
@@ -29,15 +27,10 @@ def get_past(pair, period, days_history=30):
     url_key = '/trade:' + period + ':' + 't' + pair + '/hist'
     end = int(time.time()) * 1000
     start = end - (24 * 60 * 60 * days_history * 1000)
-    params = {
-        'end': end,
-        'start': start
-    }
-
+    params = {'end': end, 'start': start}
     response = requests.get(('https://api.bitfinex.com/v2/candles' + url_key), params=params)
 
     return response.json()
-
 
 
 def load_dataframe(pair, period, days_history=30):
@@ -50,7 +43,6 @@ def load_dataframe(pair, period, days_history=30):
     :return:
     """
     try:
-
         data = get_past(pair, period, days_history)
     except Exception as ex:
         raise ex
