@@ -57,5 +57,3 @@ def load_dataframe(pair, period, days_history=30):
     df = df.set_index(['T'])
 
     return df
-
-print(convert_pair_bittrex('BTC_LTC'))
