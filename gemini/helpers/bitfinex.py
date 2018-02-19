@@ -33,6 +33,12 @@ def get_past(pair, period, days_history=30):
     return response.json()
 
 
+def convert_pair_bitfinex(pair):
+    converted = "{0}{1}".format(*pair.split('_'))
+    logger.warning('Warning: Pair was converted to ' + converted)
+    return converted
+
+
 def load_dataframe(pair, period, days_history=30):
     """
     Return historical charts data from poloniex.com
@@ -57,3 +63,4 @@ def load_dataframe(pair, period, days_history=30):
     df['time'] = pd.to_datetime(df['time'], unit='us')
 
     return df
+

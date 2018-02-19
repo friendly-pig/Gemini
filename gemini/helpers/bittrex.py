@@ -30,14 +30,14 @@ def get_past(pair, period):
 
 
 def convert_pair_bittrex(pair):
-    converted = "{1}-{0}".format(*pair.split('-'))
+    converted = "{0}-{1}".format(*pair.split('_'))
     logger.warning('Warning: Pair was converted to ' + converted)
     return converted
 
 
 def load_dataframe(pair, period, days_history=30):
     """
-    Return historical charts data from poloniex.com
+    Return historical charts data from bittrex.com
     :param pair:
     :param period:
     :param days_history:
@@ -57,3 +57,5 @@ def load_dataframe(pair, period, days_history=30):
     df = df.set_index(['T'])
 
     return df
+
+print(convert_pair_bittrex('BTC_LTC'))
