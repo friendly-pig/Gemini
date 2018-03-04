@@ -26,7 +26,6 @@ def get_past(pair, period):
     periods_dict = {300: 'fiveMin', 1800: 'thirtyMin', 86400: 'day'}
 
     params = {'marketName': pair, 'tickInterval': periods_dict[period]}
-    print(periods_dict[period])
     response = requests.get('https://bittrex.com/Api/v2.0/pub/market/GetTicks', params=params)
 
     return response.json()
