@@ -24,6 +24,7 @@ def get_past(pair, period, days_history=30):
     :param days_history:
     :return:
     """
+    # period = str(int(period/60))+'m'
     url_key = '/trade:' + period + ':' + 't' + pair + '/hist'
     end = int(time.time()) * 1000
     start = end - (24 * 60 * 60 * days_history * 1000)
@@ -48,19 +49,21 @@ def load_dataframe(pair, period, days_history=30):
     :param timeframe:
     :return:
     """
+
     try:
-        data = get_past(pair, period, days_history)
+        data = get_past(convert_pair_bitfinex(pair), period, days_history)
     except Exception as ex:
         raise ex
 
     if 'error' in data:
         raise Exception("Bad response: {}".format(data['error']))
 
-    df = pd.DataFrame(data, columns=('time', 'open',
+    df = pd.DataFrame(data, columns=('date', 'open',
                                      'hight', 'low',
                                      'close', 'volume'))
-
-    df['time'] = pd.to_datetime(df['time'], unit='us')
+    df = df.iloc[::-1]
+    df['date'] = pd.to_datetime(df['date'], unit='ms')
+    df = df.set_index(['date'])
+    df = df[['close', 'hight', 'low', 'open', 'volume']]
 
     return df
-
