@@ -1,9 +1,9 @@
-from helpers import bitfinex
+from gemini.helpers import bitfinex
 import numpy as np
 
 
 def test_load_dataframe():
-    df = bitfinex.load_dataframe('ETH_USD', "30m", days_history=30)
+    df = bitfinex.load_dataframe('ETH_USD', 1800, days_history=30)
     assert len(df) > 0
     assert df.index[0] < df.index[-1]
 
@@ -15,3 +15,4 @@ def test_load_dataframe():
 def test_convert_pair_bitfinex():
     converted = bitfinex.convert_pair_bitfinex('ETH_USD')
     assert converted == 'ETHUSD'
+test_load_dataframe()

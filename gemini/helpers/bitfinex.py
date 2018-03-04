@@ -24,8 +24,9 @@ def get_past(pair, period, days_history=30):
     :param days_history:
     :return:
     """
-    # period = str(int(period/60))+'m'
-    url_key = '/trade:' + period + ':' + 't' + pair + '/hist'
+    periods_dict = {300: '5m',900: '15m', 1800: '30m', 7200: None, 14400: '4h', 86400: '1D'  }
+
+    url_key = '/trade:' + periods_dict[period] + ':' + 't' + pair + '/hist'
     end = int(time.time()) * 1000
     start = end - (24 * 60 * 60 * days_history * 1000)
     params = {'end': end, 'start': start}
