@@ -23,14 +23,17 @@ def get_past(pair, period):
     :param days_history:
     :return:
     """
-    params = {'marketName': pair, 'tickInterval': period}
+    periods_dict = {300: 'fiveMin', 1800: 'thirtyMin', 86400: 'day'}
+
+    params = {'marketName': pair, 'tickInterval': periods_dict[period]}
+    print(periods_dict[period])
     response = requests.get('https://bittrex.com/Api/v2.0/pub/market/GetTicks', params=params)
 
     return response.json()
 
 
 def convert_pair_bittrex(pair):
-    converted = "{0}-{1}".format(*pair.split('_'))
+    converted = "{1}-{0}".format(*pair.split('_'))
     logger.warning('Warning: Pair was converted to ' + converted)
     return converted
 
@@ -46,14 +49,15 @@ def load_dataframe(pair, period, days_history=30):
     """
     try:
 
-        data = get_past(pair, period)
+        data = get_past(convert_pair_bittrex(pair), period)
     except Exception as ex:
         raise ex
 
     if 'error' in data:
         raise Exception("Bad response: {}".format(data['error']))
 
-    df = pd.DataFrame((data)['result'])
+    df = pd.DataFrame((data)['result']).rename(columns={'C': 'close', 'H': 'hight',
+                                                        'L': 'low', 'O': 'open'})
     df = df.set_index(['T'])
 
     return df
