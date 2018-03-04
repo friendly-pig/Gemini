@@ -15,4 +15,3 @@ def test_load_dataframe():
 def test_convert_pair_bitfinex():
     converted = bitfinex.convert_pair_bitfinex('ETH_USD')
     assert converted == 'ETHUSD'
-test_load_dataframe()
