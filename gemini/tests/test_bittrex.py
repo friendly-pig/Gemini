@@ -1,5 +1,6 @@
-from gemini.helpers import bittrex
 import numpy as np
+
+from gemini.helpers import bittrex
 
 
 def test_load_dataframe():

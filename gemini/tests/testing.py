@@ -1,5 +1,6 @@
-from gemini import exchange
 import unittest
+
+from gemini import exchange
 
 
 class Methods(unittest.TestCase):

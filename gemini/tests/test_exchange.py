@@ -1,11 +1,13 @@
-from gemini import exchange
 import pytest
+
+from gemini import exchange
 
 
 class TestExchange:
     """
     Rewrite tests to pytest
     """
+
     def test_errors(self):
         a = exchange.Account(1000)
         with pytest.raises(ValueError):

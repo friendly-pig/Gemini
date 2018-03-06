@@ -1,5 +1,6 @@
 import logging
 import time
+
 import pandas as pd
 import requests
 
@@ -24,7 +25,7 @@ def get_past(pair, period, days_history=30):
     :param days_history:
     :return:
     """
-    periods_dict = {300: '5m',900: '15m', 1800: '30m', 7200: None, 14400: '4h', 86400: '1D'  }
+    periods_dict = {300: '5m', 900: '15m', 1800: '30m', 7200: None, 14400: '4h', 86400: '1D'}
 
     url_key = '/trade:' + periods_dict[period] + ':' + 't' + pair + '/hist'
     end = int(time.time()) * 1000

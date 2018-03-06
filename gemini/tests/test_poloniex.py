@@ -1,5 +1,6 @@
-from gemini.helpers import poloniex
 import numpy as np
+
+from gemini.helpers import poloniex
 
 
 def test_load_dataframe():

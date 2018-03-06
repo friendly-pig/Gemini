@@ -1,5 +1,6 @@
-from gemini.helpers import bitfinex
 import numpy as np
+
+from gemini.helpers import bitfinex
 
 
 def test_load_dataframe():
