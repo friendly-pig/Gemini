@@ -1,8 +1,16 @@
+try:
+    from gemini.gemini import Gemini
+except ImportError:
+    import sys
+    import os
+
+    sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
+
 import talib
 
 from gemini.gemini import Gemini
 from gemini.helpers import poloniex as px
-from gemini.helpers.analyze import analyze_mpl, analyze_bokeh
+from gemini.helpers.analyze import analyze_mpl
 
 
 def logic(algo, data):
@@ -35,7 +43,6 @@ def logic(algo, data):
 
     algo.records.append({
         'date': today['date'],
-        'price': current_price,
         'rsi': rsi[-1],
     })
 
@@ -47,7 +54,6 @@ days_history = 30  # From there collect 60 days of data
 RSI_OPEN = 55
 RSI_DEVIATION = 10
 RSI_PERIOD = 14
-
 
 # Request data from Poloniex
 df = px.load_dataframe(pair, period, days_history)
@@ -62,7 +68,6 @@ sim_params = {
     }
 }
 
-gemini = Gemini(logic=logic, sim_params=sim_params, analyze=None)
-
+gemini = Gemini(logic=logic, sim_params=sim_params, analyze=analyze_mpl)
 
 gemini.run(df)

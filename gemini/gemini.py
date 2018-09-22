@@ -1,8 +1,8 @@
 import logging
 import time
 import types
-import numpy as np
 
+import numpy as np
 from empyrical import max_drawdown
 
 import gemini.settings as settings
@@ -19,15 +19,6 @@ class Gemini:
     """
     Main class of Backtester
     """
-    data = None  # storage for history data
-    account = None  # exchange account simulator
-    sim_params = {
-        'capital_base': 10e5,
-        'data_frequency': 'D',
-        'fee': FEES,  # Fees in percent of trade amount
-    }
-    records = []
-    performance = []
 
     def __init__(self, initialize=None, logic=None, analyze=None, results=None,
                  sim_params=None):
@@ -46,6 +37,16 @@ class Gemini:
         :param analyze:
         :param sim_params:
         """
+        # default properties
+        self.data = None  # storage for history data
+        self.account = None  # exchange account simulator
+        self.sim_params = {
+            'capital_base': 10e5,
+            'data_frequency': 'D',
+            'fee': FEES,  # Fees in percent of trade amount
+        }
+        self.records = []
+        self.performance = []
 
         if initialize is not None:
             self.initialize = types.MethodType(initialize, self)

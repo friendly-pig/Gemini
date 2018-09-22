@@ -1,6 +1,14 @@
+try:
+    from gemini.gemini import Gemini
+except ImportError:
+    import sys
+    import os
+
+    sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
+
 from gemini.gemini import Gemini
 from gemini.helpers import poloniex as px
-from gemini.helpers.analyze import analyze_mpl, analyze_bokeh
+from gemini.helpers.analyze import analyze_bokeh
 
 
 def logic(algo, data):
@@ -35,8 +43,8 @@ def logic(algo, data):
 
 
 # Data settings
-pair = "ETH_BTC"    # Use ETH pricing data on the BTC market
-period = 1800       # Use 1800 second candles
+pair = "ETH_BTC"  # Use ETH pricing data on the BTC market
+period = 1800  # Use 1800 second candles
 days_history = 100  # Collect 100 days data
 
 # Request data from Poloniex
@@ -44,12 +52,12 @@ df = px.load_dataframe(pair, period, days_history)
 
 # Algorithm settings
 sim_params = {
-    'capital_base': 10,      # initial capital in BTC
+    'capital_base': 10,  # initial capital in BTC
     'fee': {
-        'Long': 0.0015,      # fee settings for Long
-        'Short': 0.0015,     # fee settings for Short
+        'Long': 0.0015,  # fee settings for Long
+        'Short': 0.0015,  # fee settings for Short
     },
-    'data_frequency': '4H'    # Time frame to use (see /helpers/timeframe_resampler.py for more info
+    'data_frequency': '4H'  # Time frame to use (see /helpers/timeframe_resampler.py for more info
 }
 gemini = Gemini(logic=logic, sim_params=sim_params, analyze=analyze_bokeh)
 

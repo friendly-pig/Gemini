@@ -1,6 +1,7 @@
 *.pyc
 *.csv
 env
+.env
 .idea
 queue/
 .cache
